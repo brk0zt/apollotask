@@ -1,0 +1,37 @@
+# ==========================================
+# APOLLO ENERGY ASSET MANAGEMENT SYSTEM
+# Global .dockerignore configuration
+# ==========================================
+
+# Git folders and metadata
+.git
+.gitignore
+.dockerignore
+README.md
+walkthrough.md
+complexity_proofs.md
+
+# Documentations and Reference Archives
+eng-practices-master/
+fullstack-code-review/
+*.skill
+Mühendislik*
+
+# Backend (Laravel) large or environment-specific files
+backend/vendor/
+backend/.env
+backend/bootstrap/cache/*
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/tests/
+
+# Frontend (React) dependencies and build outputs
+frontend/node_modules/
+frontend/dist/
+frontend/npm-debug.log*
+frontend/.env
+frontend/.env.local
+frontend/.env.production.local
+frontend/tests/

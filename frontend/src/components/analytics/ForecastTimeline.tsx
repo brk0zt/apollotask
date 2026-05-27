@@ -1,0 +1,112 @@
+import React from 'react';
+import { ProjectForecastResponse } from '../../types/analytics';
+
+interface ForecastTimelineProps {
+  data: ProjectForecastResponse;
+}
+
+export const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ data }) => {
+  if (!data.success) {
+    return (
+      <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-center">
+        Proje tamamlama tahmini hesaplanamadı.
+      </div>
+    );
+  }
+
+  const confidencePercentage = Math.round(data.confidence * 100);
+
+  return (
+    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl backdrop-blur-md">
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold text-white">Newton-Raphson Bitiş Tahmini</h3>
+        <p className="text-white/40 text-sm mt-0.5">
+          EWMA hız eğrisi ve doğrusal olmayan kayma katsayılı zaman tahmini
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        {/* Forecast Card */}
+        <div className="p-6 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 shadow-lg text-center">
+          <span className="text-white/40 text-xs font-semibold uppercase tracking-widest block">
+            Öngörülen Bitiş Tarihi
+          </span>
+          <span className="text-3xl md:text-4xl font-extrabold text-white block mt-3 tracking-tight">
+            {data.estimated_completion_date}
+          </span>
+          <span className="text-amber-400 text-xs font-medium block mt-2">
+            Kalan Süre: <strong className="text-white">{data.forecasted_remaining_days.toFixed(1)} Gün</strong>
+          </span>
+
+          {/* Confidence Indicator */}
+          <div className="mt-6 space-y-1.5">
+            <div className="flex justify-between items-center text-[10px] text-white/50">
+              <span>Model Güven Endeksi (Confidence)</span>
+              <span className="font-bold">{confidencePercentage}%</span>
+            </div>
+            <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+                style={{ width: `${confidencePercentage}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Mathematical Model Metrics */}
+        <div className="space-y-4">
+          <h4 className="font-semibold text-white text-sm">Yakınsama ve Hız Parametreleri</h4>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-3.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-white/30 text-[10px] uppercase font-bold tracking-wider block">
+                Düzeltilmiş Hız ($v_0$)
+              </span>
+              <span className="text-lg font-bold text-white block mt-1">
+                {data.base_velocity.toFixed(3)}
+              </span>
+              <span className="text-white/40 text-[9px] block mt-0.5">Task Başına Oran</span>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-white/30 text-[10px] uppercase font-bold tracking-wider block">
+                Hız Kayması ($\alpha$)
+              </span>
+              <span className="text-lg font-bold text-white block mt-1">
+                {data.velocity_drift_coefficient.toFixed(5)}
+              </span>
+              <span className="text-white/40 text-[9px] block mt-0.5">Günlük İvme Değişimi</span>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-white/30 text-[10px] uppercase font-bold tracking-wider block">
+                Kalan İş Yükü ($R$)
+              </span>
+              <span className="text-lg font-bold text-white block mt-1">
+                {data.total_estimated_remaining_hours.toFixed(1)} sa
+              </span>
+              <span className="text-white/40 text-[9px] block mt-0.5">Kalan Planlı Süre</span>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-white/30 text-[10px] uppercase font-bold tracking-wider block">
+                Yakınsama (NR Iter)
+              </span>
+              <span className="text-lg font-bold text-emerald-400 block mt-1">
+                {data.newton_raphson_iterations || 3} İterasyon
+              </span>
+              <span className="text-white/40 text-[9px] block mt-0.5">
+                {data.newton_raphson_converged ? 'Matematiksel Dengede' : 'Yakınsıyor'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 text-[10px] text-white/40 text-center uppercase tracking-widest bg-white/5 py-2 rounded-lg">
+        Tahminleme Metodu: {data.method}
+      </div>
+    </div>
+  );
+};
+export default ForecastTimeline;

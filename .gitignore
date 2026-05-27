@@ -1,0 +1,62 @@
+# ==========================================
+# APOLLO ENERGY ASSET MANAGEMENT SYSTEM
+# Global .gitignore configuration
+# ==========================================
+
+# MacOS/Windows system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE/Editor configurations
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary and local tool backups/artifacts
+*.skill
+fullstack-code-review/
+extracted_skill/
+Mühendislik*
+README (4).md
+
+# ==========================================
+# BACKEND (Laravel 11) Ignore Rules
+# ==========================================
+/backend/.env
+/backend/.env.backup
+/backend/.env.production
+/backend/vendor/
+/backend/bootstrap/cache/*.php
+/backend/storage/*.key
+/backend/storage/framework/cache/data/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/testing/*
+/backend/storage/framework/views/*.php
+/backend/storage/logs/*.log
+/backend/public/storage
+/backend/.phpunit.result.cache
+/backend/.auth_state
+
+# ==========================================
+# FRONTEND (React + Vite + TypeScript) Rules
+# ==========================================
+/frontend/node_modules/
+/frontend/dist/
+/frontend/dist-ssr/
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+/frontend/lerna-debug.log*
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/src/api/client.js
+/frontend/src/context/AuthContext.js
