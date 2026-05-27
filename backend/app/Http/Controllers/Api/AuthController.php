@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Models\EventStream;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -32,23 +34,19 @@ class AuthController extends Controller
         $token = $user->createToken('apollo_auth_token')->plainTextToken;
 
         // L1 Event Stream Append: Register / Initial Login event
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $user->id,
             'event_type' => 'login',
             'event_ts' => now(),
             'event_value' => 1.0,
-            'metadata' => json_encode(['method' => 'registration']),
+            'metadata' => ['method' => 'registration'],
         ]);
 
         return response()->json([
             'message' => 'User registered successfully.',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ]
+            'user' => new UserResource($user),
         ], 201); // 201 Created
     }
 
@@ -61,7 +59,16 @@ class AuthController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
+        // Timing-safe verification: check password hash even if the user does not exist
+        // to prevent email enumeration timing analysis attacks.
+        $passwordValid = $user ? Hash::check($validated['password'], $user->password) : false;
+
+        if (!$user) {
+            // Run dummy hashing attempt to consume identical execution cycles
+            Hash::check($validated['password'], '$argon2id$v=19$m=65536,t=3,p=2$ZHVtbXlfc2FsdF9zdHJpbmc$dummyhashvalue');
+        }
+
+        if (!$user || !$passwordValid) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials do not match our records.'],
             ]);
@@ -71,23 +78,19 @@ class AuthController extends Controller
         $token = $user->createToken('apollo_auth_token')->plainTextToken;
 
         // L1 Event Stream Append: Login event
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $user->id,
             'event_type' => 'login',
             'event_ts' => now(),
             'event_value' => 1.0,
-            'metadata' => json_encode(['ip' => $request->ip()]),
+            'metadata' => ['ip' => $request->ip()],
         ]);
 
         return response()->json([
             'message' => 'Login successful.',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ]
+            'user' => new UserResource($user),
         ], 200);
     }
 
@@ -99,12 +102,12 @@ class AuthController extends Controller
         $user = $request->user();
 
         // L1 Event Stream Append: Logout event
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $user->id,
             'event_type' => 'logout',
             'event_ts' => now(),
             'event_value' => 1.0,
-            'metadata' => json_encode(['token_id' => $user->currentAccessToken()->id]),
+            'metadata' => ['token_id' => $user->currentAccessToken()->id],
         ]);
 
         // Revoke token
@@ -121,7 +124,7 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json([
-            'user' => $request->user()
+            'user' => new UserResource($request->user())
         ], 200);
     }
 }

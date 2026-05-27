@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // ==========================================
-// AUTHENTICATION ROUTES (Agresif Rate Limiting)
+// AUTHENTICATION ROUTES (Aggressive Rate Limiting)
 // ==========================================
 Route::middleware([AuthRateLimiter::class])->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
@@ -28,7 +28,7 @@ Route::middleware([AuthRateLimiter::class])->group(function () {
 });
 
 // ==========================================
-// PROTECTED API ROUTES (Sanctum + Gevşek API Rate Limiting)
+// PROTECTED API ROUTES (Sanctum + UX-Preserving API Rate Limiting)
 // ==========================================
 Route::middleware(['auth:sanctum', ApiRateLimiter::class])->group(function () {
     // Session state

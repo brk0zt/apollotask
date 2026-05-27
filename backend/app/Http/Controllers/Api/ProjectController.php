@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest;
 use App\Models\Project;
+use App\Models\EventStream;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,22 +30,22 @@ class ProjectController extends Controller
     {
         $validated = $request->validated();
         
-        $project = Project::create([
-            'user_id' => $request->user()->id,
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'status' => $validated['status'] ?? 'active',
-            'metadata' => $validated['metadata'] ?? null,
-        ]);
+        $project = new Project();
+        $project->user_id = $request->user()->id;
+        $project->name = $validated['name'];
+        $project->description = $validated['description'] ?? null;
+        $project->status = $validated['status'] ?? 'active';
+        $project->metadata = $validated['metadata'] ?? null;
+        $project->save();
 
         // L1 Event Stream Telemetry Append
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $request->user()->id,
             'project_id' => $project->id,
             'event_type' => 'project_created',
             'event_ts' => now(),
             'event_value' => 1.0,
-            'metadata' => json_encode(['ip' => $request->ip()]),
+            'metadata' => ['ip' => $request->ip()],
         ]);
 
         return response()->json([
@@ -93,16 +94,16 @@ class ProjectController extends Controller
         }
 
         $validated = $request->validated();
-        $project->update($validated);
+        $project->update(\Illuminate\Support\Arr::except($validated, ['user_id']));
 
         // L1 Event Stream Telemetry Append
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $request->user()->id,
             'project_id' => $project->id,
             'event_type' => 'project_updated',
             'event_ts' => now(),
             'event_value' => 1.0,
-            'metadata' => json_encode(['updated_fields' => array_keys($validated)]),
+            'metadata' => ['updated_fields' => array_keys($validated)],
         ]);
 
         return response()->json([

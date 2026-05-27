@@ -199,14 +199,14 @@ class FFTAnalysisService
     protected function generateInsightString(float $periodDays): string
     {
         if ($periodDays >= 6.0 && $periodDays <= 8.0) {
-            return "Kullanıcı haftalık düzenli bir aktivite döngüsüne sahip (~" . round($periodDays, 1) . " gün). Hafta sonları ve hafta içi çalışma periyotları net ve ritmik.";
+            return "User exhibits a stable weekly activity cycle (~" . round($periodDays, 1) . " days). Weekend vs. weekday productivity patterns are highly rhythmic.";
         }
         if ($periodDays >= 0.8 && $periodDays <= 1.2) {
-            return "Kullanıcı günlük sirkadiyen bir ritim sergiliyor (~" . round($periodDays * 24, 1) . " saat). Her gün belirli saatlerde iş teslim yoğunlaşması var.";
+            return "User exhibits a strong circadian rhythm (~" . round($periodDays * 24, 1) . " hours). Delivery intensity peaks consistently at specific hours each day.";
         }
         if ($periodDays > 1.2 && $periodDays < 6.0) {
-            return "Kullanıcı mikro sprint sınırlarında (~" . round($periodDays, 1) . " gün) yoğunlaşıyor. 2-4 günlük mini ritimler mevcut.";
+            return "User targets tasks in micro sprint cycles (~" . round($periodDays, 1) . " days). Rhythmic 2-4 day delivery sprints detected.";
         }
-        return "Karmaşık aktivite dağılımı mevcut. Net bir döngü yerine anlık/dalgalı teslimat alışkanlığı gözlemlendi.";
+        return "Complex activity pattern observed. Task completion follows event-driven bursts rather than a strict cyclic rhythm.";
     }
 }

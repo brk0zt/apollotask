@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequest;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\EventStream;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -59,14 +60,14 @@ class TaskController extends Controller
         ]);
 
         // L1 Event Stream Telemetry Append
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $request->user()->id,
             'project_id' => $projectId,
             'task_id' => $task->id,
             'event_type' => 'task_created',
             'event_ts' => now(),
             'event_value' => 1.0,
-            'metadata' => json_encode(['priority' => $task->priority]),
+            'metadata' => ['priority' => $task->priority],
         ]);
 
         return response()->json([
@@ -92,14 +93,14 @@ class TaskController extends Controller
         $task->update($validated);
 
         // L1 Event Stream Telemetry Append
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $request->user()->id,
             'project_id' => $task->project_id,
             'task_id' => $task->id,
             'event_type' => 'task_updated',
             'event_ts' => now(),
             'event_value' => 1.0,
-            'metadata' => json_encode(['updated_fields' => array_keys($validated)]),
+            'metadata' => ['updated_fields' => array_keys($validated)],
         ]);
 
         return response()->json([
@@ -136,17 +137,17 @@ class TaskController extends Controller
         // L1 Event Stream Telemetry Append
         // In task_completed events, the event_value stores actual_hours
         // This is a major requirement for Newton-Raphson completion velocity calculation!
-        DB::table('event_stream')->insert([
+        EventStream::create([
             'user_id' => $request->user()->id,
             'project_id' => $task->project_id,
             'task_id' => $task->id,
             'event_type' => 'task_completed',
             'event_ts' => now(),
             'event_value' => $actualHours, // L1 value captures work volume
-            'metadata' => json_encode([
+            'metadata' => [
                 'estimated_hours' => $task->estimated_hours,
                 'actual_hours' => $actualHours
-            ]),
+            ],
         ]);
 
         return response()->json([
