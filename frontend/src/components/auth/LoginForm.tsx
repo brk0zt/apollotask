@@ -6,8 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 
 // Define strict runtime validation schema using Zod
 const loginSchema = z.object({
-  email: z.string().min(1, 'E-posta adresi gereklidir.').email('Geçersiz e-posta adresi formatı.'),
-  password: z.string().min(8, 'Şifre en az 8 karakter olmalıdır.'),
+  email: z.string().min(1, 'Email address is required.').email('Invalid email address format.'),
+  password: z.string().min(8, 'Password must be at least 8 characters.'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -46,7 +46,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onNavigateToReg
     <div className="w-full max-w-md p-8 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-300">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Apollo Energy</h2>
-        <p className="text-white/60">Lütfen kimlik bilgilerinizi giriniz.</p>
+        <p className="text-white/60">Please enter your credentials.</p>
       </div>
 
       {error && (
@@ -58,13 +58,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onNavigateToReg
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-white/80 mb-2" htmlFor="email">
-            E-posta Adresi
+            Email Address
           </label>
           <input
             {...register('email')}
             id="email"
             type="email"
-            placeholder="ornek@apollo.com"
+            placeholder="example@apollo.com"
             className={`w-full px-4 py-3 rounded-lg bg-white/5 border ${
               errors.email ? 'border-rose-500/50' : 'border-white/10'
             } text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200`}
@@ -76,7 +76,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onNavigateToReg
 
         <div>
           <label className="block text-sm font-medium text-white/80 mb-2" htmlFor="password">
-            Şifre
+            Password
           </label>
           <input
             {...register('password')}
@@ -100,22 +100,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onNavigateToReg
           {isSubmitting ? (
             <div className="flex items-center justify-center space-x-2">
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Giriş Yapılıyor...</span>
+              <span>Logging In...</span>
             </div>
           ) : (
-            'Giriş Yap'
+            'Log In'
           )}
         </button>
       </form>
 
       {onNavigateToRegister && (
         <div className="mt-6 text-center text-sm">
-          <span className="text-white/60">Hesabınız yok mu? </span>
+          <span className="text-white/60">Don't have an account? </span>
           <button
             onClick={onNavigateToRegister}
             className="font-medium text-amber-400 hover:text-amber-300 transition-colors duration-200 focus:outline-none"
           >
-            Yeni Hesap Oluşturun
+            Create a new account
           </button>
         </div>
       )}

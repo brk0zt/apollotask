@@ -38,7 +38,7 @@ const mockFftData: FFTAnalysisResponse = {
   dominant_frequency_cycles_day: 0.1428,
   dominant_period_days: 7.0,
   peak_magnitude: 42.6,
-  insight: "Kullanıcı haftalık düzenli bir aktivite döngüsüne sahip (~7.0 gün). Hafta sonları ve hafta içi çalışma periyotları son derece ritmik. FFT spektrum analizi, pazartesi-salı teslimat yoğunlaşmasını net bir biçimde doğrulamaktadır.",
+  insight: "User exhibits a stable weekly activity cycle (~7.0 days). Weekend vs. weekday productivity patterns are highly rhythmic. FFT spectrum analysis confirms a significant delivery concentration around Monday-Tuesday.",
   spectrum: Array.from({ length: 32 }, (_, i) => {
     const k = i + 1;
     const factor = k === 6 ? 42.6 : k === 12 ? 18.2 : Math.max(1.5, 15 / k + Math.random() * 2);
@@ -83,7 +83,7 @@ const mockForecastData: ProjectForecastResponse = {
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [selectedMetric, setSelectedMetric] = useState<string>('task_completion_rate');
-  const [useLiveApi, setUseLiveApi] = useState<boolean>(true); // default to Canlı API Modu!
+  const [useLiveApi, setUseLiveApi] = useState<boolean>(true); // default to Live API Mode!
   
   // Projects and Tasks States for Real CRUD
   const [projects, setProjects] = useState<Project[]>([]);
@@ -194,7 +194,7 @@ export const Dashboard: React.FC = () => {
       setNewProjectDesc('');
       setUseLiveApi(true); // switch to live mode automatically
     } catch (err) {
-      alert('Proje oluşturulamadı, Leaky Bucket limitine takılmış olabilirsiniz.');
+      alert('Project could not be created. You may have hit the Leaky Bucket rate limit.');
     }
   };
 
@@ -215,7 +215,7 @@ export const Dashboard: React.FC = () => {
       setNewTaskEst('');
       setNewTaskDueDate('');
     } catch (err) {
-      alert('Görev oluşturulamadı, API limiti aşılmış olabilir.');
+      alert('Task could not be created. The API rate limit may have been exceeded.');
     }
   };
 
@@ -223,7 +223,7 @@ export const Dashboard: React.FC = () => {
   const handleCompleteTask = async (taskId: number) => {
     const hours = taskActualHours[taskId];
     if (!hours || parseFloat(hours) < 0) {
-      alert('Lütfen geçerli bir harcanan saat değeri giriniz.');
+      alert('Please enter a valid hours spent value.');
       return;
     }
 
@@ -241,7 +241,7 @@ export const Dashboard: React.FC = () => {
         fetchTasks(selectedProjectId);
       }
     } catch (err) {
-      alert('Görev tamamlanamadı, sunucu bağlantısı veya API limiti hatası.');
+      alert('Task could not be completed. Check server connection or API rate limits.');
     }
   };
 
@@ -265,7 +265,7 @@ export const Dashboard: React.FC = () => {
               {user?.name ? user.name[0].toUpperCase() : 'A'}
             </div>
             <div className="hidden md:block">
-              <p className="text-sm font-semibold text-white leading-none">{user?.name || 'Ziyaretçi'}</p>
+              <p className="text-sm font-semibold text-white leading-none">{user?.name || 'Visitor'}</p>
               <p className="text-[10px] text-white/40 mt-1">{user?.email || 'guest@apollo.com'}</p>
             </div>
           </div>
@@ -274,7 +274,7 @@ export const Dashboard: React.FC = () => {
             onClick={logout}
             className="px-4 py-2 rounded-lg bg-white/5 hover:bg-rose-500/10 border border-white/10 hover:border-rose-500/20 text-sm text-white/80 hover:text-rose-400 font-medium active:scale-[0.98] transition-all duration-200"
           >
-            Çıkış Yap
+            Log Out
           </button>
         </div>
       </header>
@@ -285,14 +285,14 @@ export const Dashboard: React.FC = () => {
         {/* Dashboard Title & Mode Switcher */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-white">Analitik İzleme Kontrol Paneli</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-white">Analytical Monitoring Dashboard</h2>
             <p className="text-white/40 text-sm mt-1">
-              Hızlı Fourier Dönüşümleri, Newton-Raphson hız denklemleri ve Jacobian risk analizi
+              Fast Fourier Transforms, Newton-Raphson velocity convergence, and Jacobian risk analysis
             </p>
           </div>
           
           <div className="flex items-center space-x-3 self-start">
-            <span className="text-xs text-white/50">Gösterim Modu:</span>
+            <span className="text-xs text-white/50">Display Mode:</span>
             <button
               onClick={() => setUseLiveApi(!useLiveApi)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${
@@ -301,7 +301,7 @@ export const Dashboard: React.FC = () => {
                   : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
               }`}
             >
-              {!useLiveApi ? '📊 Simülasyon Verisi' : '🔌 Canlı API Modu'}
+              {!useLiveApi ? '📊 Simulation Data' : '🔌 Live API Mode'}
             </button>
           </div>
         </div>
@@ -309,27 +309,27 @@ export const Dashboard: React.FC = () => {
         {/* Global Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-lg">
-            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Projeleriniz</span>
-            <span className="text-3xl font-extrabold text-white block mt-2">{projects.length} Adet</span>
-            <span className="text-emerald-400 text-xs font-medium block mt-1.5">⚡ Veritabanı Kayıtlı</span>
+            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Your Projects</span>
+            <span className="text-3xl font-extrabold text-white block mt-2">{projects.length} Projects</span>
+            <span className="text-emerald-400 text-xs font-medium block mt-1.5">⚡ Database Persisted</span>
           </div>
 
           <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-lg">
-            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Seçili Görev Yükü</span>
-            <span className="text-3xl font-extrabold text-white block mt-2">{tasks.length} Task</span>
-            <span className="text-amber-400 text-xs font-medium block mt-1.5">📈 {tasks.filter(t => t.status === 'completed').length} Tamamlanan</span>
+            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Selected Task Workload</span>
+            <span className="text-3xl font-extrabold text-white block mt-2">{tasks.length} Tasks</span>
+            <span className="text-amber-400 text-xs font-medium block mt-1.5">📈 {tasks.filter(t => t.status === 'completed').length} Completed</span>
           </div>
 
           <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-lg">
-            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Sinyal Örneklem Boyutu</span>
-            <span className="text-3xl font-extrabold text-white block mt-2">720 Saat</span>
-            <span className="text-white/60 text-xs font-medium block mt-1.5">📈 Uniform Sampled L2</span>
+            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Signal Sample Size</span>
+            <span className="text-3xl font-extrabold text-white block mt-2">720 Hours</span>
+            <span className="text-white/60 text-xs font-medium block mt-1.5">📈 Uniformly Sampled L2</span>
           </div>
 
           <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-lg">
-            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Argon2id Crack Eşiği</span>
+            <span className="text-white/40 text-xs font-bold uppercase tracking-wider block">Argon2id Memory Target</span>
             <span className="text-3xl font-extrabold text-emerald-400 block mt-2">64 MB</span>
-            <span className="text-white/60 text-xs font-medium block mt-1.5">🔒 Memory-Hard Kilitli</span>
+            <span className="text-white/60 text-xs font-medium block mt-1.5">🔒 Memory-Hard Locked</span>
           </div>
         </div>
 
@@ -338,15 +338,15 @@ export const Dashboard: React.FC = () => {
           {/* Projects Column */}
           <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-white">Yeni Enerji Projesi Oluştur</h3>
-              <p className="text-white/40 text-xs mt-0.5">Asset yönetimi için yeni bir proje kaydı ekleyin</p>
+              <h3 className="text-lg font-semibold text-white">Create New Energy Project</h3>
+              <p className="text-white/40 text-xs mt-0.5">Register a new energy project for asset monitoring</p>
             </div>
             
             <form onSubmit={handleCreateProject} className="space-y-4">
               <div>
                 <input
                   type="text"
-                  placeholder="Proje Adı (Örn: Solar PV Çatı Güç Sistemi)"
+                  placeholder="Project Name (e.g., Solar PV Roof Power System)"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all duration-200 text-sm"
@@ -354,7 +354,7 @@ export const Dashboard: React.FC = () => {
               </div>
               <div>
                 <textarea
-                  placeholder="Proje Açıklaması..."
+                  placeholder="Project Description..."
                   value={newProjectDesc}
                   onChange={(e) => setNewProjectDesc(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all duration-200 text-sm h-20"
@@ -364,12 +364,12 @@ export const Dashboard: React.FC = () => {
                 type="submit"
                 className="w-full py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold text-xs active:scale-[0.98] transition-all duration-200"
               >
-                Proje Ekle (POST /api/projects)
+                Add Project (POST /api/projects)
               </button>
             </form>
 
             <div className="border-t border-white/10 pt-4">
-              <h4 className="font-semibold text-white text-xs mb-3">Projeleriniz</h4>
+              <h4 className="font-semibold text-white text-xs mb-3">Your Projects</h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {projects.map((proj) => (
                   <button
@@ -388,7 +388,7 @@ export const Dashboard: React.FC = () => {
                   </button>
                 ))}
                 {projects.length === 0 && (
-                  <p className="text-white/40 text-center text-xs">Kayıtlı proje bulunamadı.</p>
+                  <p className="text-white/40 text-center text-xs">No projects found.</p>
                 )}
               </div>
             </div>
@@ -398,8 +398,8 @@ export const Dashboard: React.FC = () => {
           <div className="lg:col-span-2 p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="text-lg font-semibold text-white">Görev Yönetimi (Task CRUD)</h3>
-                <p className="text-white/40 text-xs mt-0.5">Seçili projeye görev ekleyin ve tamamlayın</p>
+                <h3 className="text-lg font-semibold text-white">Task Management (Task CRUD)</h3>
+                <p className="text-white/40 text-xs mt-0.5">Add and complete tasks for the selected project</p>
               </div>
             </div>
 
@@ -410,7 +410,7 @@ export const Dashboard: React.FC = () => {
                   <div className="md:col-span-2">
                     <input
                       type="text"
-                      placeholder="Görev Başlığı (Örn: Inverter Bağlantısı)"
+                      placeholder="Task Title (e.g., Inverter Connection)"
                       value={newTaskTitle}
                       onChange={(e) => setNewTaskTitle(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all duration-200 text-sm"
@@ -419,7 +419,7 @@ export const Dashboard: React.FC = () => {
                   <div>
                     <input
                       type="number"
-                      placeholder="Planlanan Saat"
+                      placeholder="Estimated Hours"
                       value={newTaskEst}
                       onChange={(e) => setNewTaskEst(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all duration-200 text-sm"
@@ -429,7 +429,7 @@ export const Dashboard: React.FC = () => {
                     type="submit"
                     className="w-full py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold text-xs active:scale-[0.98] transition-all duration-200"
                   >
-                    Task Ekle
+                    Add Task
                   </button>
                 </form>
 
@@ -438,12 +438,12 @@ export const Dashboard: React.FC = () => {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-white/10 text-white/50">
-                        <th className="py-2">Başlık</th>
-                        <th className="py-2">Öncelik</th>
+                        <th className="py-2">Title</th>
+                        <th className="py-2">Priority</th>
                         <th className="py-2">Plan (Est)</th>
-                        <th className="py-2">Gerçekleşen (Act)</th>
-                        <th className="py-2">Durum</th>
-                        <th className="py-2 text-right">Aksiyonlar</th>
+                        <th className="py-2">Actual (Act)</th>
+                        <th className="py-2">Status</th>
+                        <th className="py-2 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -457,8 +457,8 @@ export const Dashboard: React.FC = () => {
                               P{task.priority}
                             </span>
                           </td>
-                          <td className="py-3">{task.estimated_hours ? `${task.estimated_hours} sa` : '-'}</td>
-                          <td className="py-3">{task.actual_hours ? `${task.actual_hours} sa` : '-'}</td>
+                          <td className="py-3">{task.estimated_hours ? `${task.estimated_hours} hrs` : '-'}</td>
+                          <td className="py-3">{task.actual_hours ? `${task.actual_hours} hrs` : '-'}</td>
                           <td className="py-3">
                             <span className={`px-2 py-0.5 rounded text-[10px] ${
                               task.status === 'completed' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
@@ -472,7 +472,7 @@ export const Dashboard: React.FC = () => {
                                 <div className="flex items-center justify-end space-x-2">
                                   <input
                                     type="number"
-                                    placeholder="Gerçekleşen Saat"
+                                    placeholder="Actual Hours"
                                     value={taskActualHours[task.id] || ''}
                                     onChange={(e) => setTaskActualHours({
                                       ...taskActualHours,
@@ -490,7 +490,7 @@ export const Dashboard: React.FC = () => {
                                     onClick={() => setCompletingTaskId(null)}
                                     className="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white"
                                   >
-                                    İptal
+                                    Cancel
                                   </button>
                                 </div>
                               ) : (
@@ -498,11 +498,11 @@ export const Dashboard: React.FC = () => {
                                   onClick={() => setCompletingTaskId(task.id)}
                                   className="px-3 py-1 rounded bg-white/10 hover:bg-emerald-500/20 hover:text-emerald-300 border border-white/10 transition-colors"
                                 >
-                                  Tamamla
+                                  Complete
                                 </button>
                               )
                             ) : (
-                              <span className="text-white/40 italic">Tamamlandı</span>
+                              <span className="text-white/40 italic">Completed</span>
                             )}
                           </td>
                         </tr>
@@ -510,7 +510,7 @@ export const Dashboard: React.FC = () => {
                       {tasks.length === 0 && (
                         <tr>
                           <td colSpan={6} className="py-4 text-center text-white/40">
-                            Bu projeye ait görev bulunamadı. Üstteki formdan görev ekleyin!
+                            No tasks found for this project. Add a task using the form above!
                           </td>
                         </tr>
                       )}
@@ -519,7 +519,7 @@ export const Dashboard: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <p className="text-white/40 text-center py-8">Lütfen işlem yapmak için soldan bir proje seçin veya yeni bir proje oluşturun.</p>
+              <p className="text-white/40 text-center py-8">Please select a project from the left or create a new project to start managing tasks.</p>
             )}
           </div>
         </div>
@@ -540,7 +540,7 @@ export const Dashboard: React.FC = () => {
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                Görev Teslim Oranı
+                Task Completion Rate
               </button>
               <button
                 onClick={() => setSelectedMetric('task_creation_rate')}
@@ -550,7 +550,7 @@ export const Dashboard: React.FC = () => {
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                Görev Oluşturma Oranı
+                Task Creation Rate
               </button>
             </div>
 
@@ -571,7 +571,7 @@ export const Dashboard: React.FC = () => {
       <footer className="border-t border-white/5 bg-slate-950/80 px-6 py-6 text-center text-xs text-white/30 mt-auto">
         <p>© 2026 Apollo Global Solutions — Energy Asset Management Platform</p>
         <p className="mt-1 text-[10px]">
-          Sinyal işleme ve analitik kararlar, vibe-coding kalıpları yerine algoritmik verimlilik matrisiyle alınmıştır.
+          Signal processing and analytical decisions are made using algorithmic efficiency matrices instead of vibe-coding patterns.
         </p>
       </footer>
     </div>

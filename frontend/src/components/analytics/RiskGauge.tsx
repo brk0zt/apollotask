@@ -9,7 +9,7 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ data }) => {
   if (!data.success) {
     return (
       <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-center">
-        Risk skorlaması hesaplanamadı.
+        Risk scoring could not be calculated.
       </div>
     );
   }
@@ -27,19 +27,19 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ data }) => {
 
   // Map metric keys to human-readable Turkish labels
   const metricLabels: Record<string, string> = {
-    overdue_ratio: 'Süresi Geçmiş Task Oranı',
-    velocity_deficit: 'Hız Tahmin Sapması (Velocity Deficit)',
-    priority_density: 'Birikmiş Kritik Görev Yoğunluğu',
-    inactivity_decay: 'Proje Hareketsizlik Süresi (Decay)',
-    backlog_weight: 'Birikmiş Backlog Yükü'
+    overdue_ratio: 'Overdue Task Ratio',
+    velocity_deficit: 'Velocity Deficit',
+    priority_density: 'Critical Task Density',
+    inactivity_decay: 'Inactivity Decay',
+    backlog_weight: 'Backlog Weight'
   };
 
   return (
     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl backdrop-blur-md">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-white">Jacobian Risk Puanı</h3>
+        <h3 className="text-xl font-semibold text-white">Jacobian Risk Score</h3>
         <p className="text-white/40 text-sm mt-0.5">
-          5 farklı telemetri metriğinin doğrusallaştırılmış risk matrisi analizi
+          Linearized risk matrix analysis of 5 different telemetry metrics
         </p>
       </div>
 
@@ -74,7 +74,7 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ data }) => {
                 {Math.round(score * 100)}%
               </span>
               <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest mt-1">
-                Risk Oranı
+                Risk Ratio
               </span>
             </div>
           </div>
@@ -85,7 +85,7 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ data }) => {
 
         {/* Jacobian Sensitivities & Metric Impact Breakdown */}
         <div className="col-span-2 space-y-4">
-          <h4 className="font-semibold text-white text-sm">Metrik Etki Dağılımı ve Jacobian Duyarlılıkları</h4>
+          <h4 className="font-semibold text-white text-sm">Metric Impact Distribution and Jacobian Sensitivities</h4>
           
           <div className="space-y-3">
             {Object.entries(data.breakdown).map(([key, contribution]) => (
@@ -93,7 +93,7 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ data }) => {
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-white/70 font-medium">{metricLabels[key] || key}</span>
                   <span className="text-white/40">
-                    Kısmi Etki: <strong className="text-white/80">{contribution.percentage_impact}%</strong>
+                    Partial Impact: <strong className="text-white/80">{contribution.percentage_impact}%</strong>
                   </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
@@ -103,8 +103,8 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ data }) => {
                   />
                 </div>
                 <div className="flex justify-between items-center text-[10px] text-white/30">
-                  <span>Ölçülen Değer: {contribution.metric_value.toFixed(2)}</span>
-                  <span>Jacobian Hassasiyeti (∂Risk/∂m): {contribution.jacobian_sensitivity.toFixed(2)}</span>
+                  <span>Measured Value: {contribution.metric_value.toFixed(2)}</span>
+                  <span>Jacobian Sensitivity (∂Risk/∂m): {contribution.jacobian_sensitivity.toFixed(2)}</span>
                 </div>
               </div>
             ))}
@@ -113,9 +113,9 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ data }) => {
       </div>
 
       <div className="mt-6 p-3 rounded-lg bg-white/5 border border-white/5 text-[11px] text-white/50 text-center leading-relaxed">
-        <strong>Matematiksel Model:</strong> Taylor serisi doğrusallaştırma yaklaşımıyla projenin çok değişkenli durumu
-        <code className="text-amber-400 mx-1">Risk ≈ J · ΔM</code> şeklinde çözülmüştür. Bu yaklaşım, karmaşık durum geçişlerini
-        <code className="text-amber-400 ml-1">O(m)</code> zaman diliminde ucuza modelleyerek CPU kaynaklarını korur.
+        <strong>Mathematical Model:</strong> The project's multivariate state is resolved using a Taylor series linearization approach as
+        <code className="text-amber-400 mx-1">Risk ≈ J · ΔM</code>. This approach models complex state transitions efficiently in
+        <code className="text-amber-400 ml-1">O(m)</code> time complexity, preserving CPU resources.
       </div>
     </div>
   );

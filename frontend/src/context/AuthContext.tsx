@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const handleUnauthorized = () => {
       setUser(null);
       setToken(null);
-      setError('Oturumunuz sonlandırıldı. Lütfen tekrar giriş yapın.');
+      setError('Your session has expired. Please log in again.');
     };
 
     window.addEventListener('apollo_unauthorized', handleUnauthorized);
@@ -113,9 +113,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleApiError = (err: unknown) => {
     if (axios.isAxiosError(err)) {
       const data = err.response?.data as ApiError | undefined;
-      setError(data?.message || data?.error || 'Bir ağ hatası oluştu.');
+      setError(data?.message || data?.error || 'A network error occurred.');
     } else {
-      setError('Beklenmeyen bir hata meydana geldi.');
+      setError('An unexpected error occurred.');
     }
   };
 

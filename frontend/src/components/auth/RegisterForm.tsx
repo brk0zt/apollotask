@@ -7,13 +7,13 @@ import { useAuth } from '../../context/AuthContext';
 // Define strict runtime validation schema using Zod with refinement check for passwords
 const registerSchema = z
   .object({
-    name: z.string().min(2, 'İsim en az 2 karakter olmalıdır.').max(128, 'İsim en fazla 128 karakter olabilir.'),
-    email: z.string().min(1, 'E-posta adresi gereklidir.').email('Geçersiz e-posta adresi formatı.'),
-    password: z.string().min(8, 'Şifre en az 8 karakter olmalıdır.'),
-    password_confirmation: z.string().min(1, 'Şifre tekrarı gereklidir.'),
+    name: z.string().min(2, 'Name must be at least 2 characters.').max(128, 'Name must be at most 128 characters.'),
+    email: z.string().min(1, 'Email address is required.').email('Invalid email address format.'),
+    password: z.string().min(8, 'Password must be at least 8 characters.'),
+    password_confirmation: z.string().min(1, 'Confirm password is required.'),
   })
   .refine((data) => data.password === data.password_confirmation, {
-    message: 'Şifreler eşleşmiyor.',
+    message: 'Passwords do not match.',
     path: ['password_confirmation'],
   });
 
@@ -52,8 +52,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onNavigat
   return (
     <div className="w-full max-w-md p-8 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-300">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Hesap Oluştur</h2>
-        <p className="text-white/60">Yönetim paneline katılmak için formu doldurun.</p>
+        <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Create Account</h2>
+        <p className="text-white/60">Fill out the form to join the control panel.</p>
       </div>
 
       {error && (
@@ -65,7 +65,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onNavigat
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-white/80 mb-1.5" htmlFor="name">
-            Adınız Soyadınız
+            Full Name
           </label>
           <input
             {...register('name')}
@@ -83,13 +83,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onNavigat
 
         <div>
           <label className="block text-sm font-medium text-white/80 mb-1.5" htmlFor="email">
-            E-posta Adresi
+            Email Address
           </label>
           <input
             {...register('email')}
             id="email"
             type="email"
-            placeholder="ornek@apollo.com"
+            placeholder="example@apollo.com"
             className={`w-full px-4 py-2.5 rounded-lg bg-white/5 border ${
               errors.email ? 'border-rose-500/50' : 'border-white/10'
             } text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200`}
@@ -101,7 +101,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onNavigat
 
         <div>
           <label className="block text-sm font-medium text-white/80 mb-1.5" htmlFor="password">
-            Şifre
+            Password
           </label>
           <input
             {...register('password')}
@@ -119,7 +119,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onNavigat
 
         <div>
           <label className="block text-sm font-medium text-white/80 mb-1.5" htmlFor="password_confirmation">
-            Şifre Tekrarı
+            Confirm Password
           </label>
           <input
             {...register('password_confirmation')}
@@ -143,22 +143,22 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onNavigat
           {isSubmitting ? (
             <div className="flex items-center justify-center space-x-2">
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Kayıt Yapılıyor...</span>
+              <span>Registering...</span>
             </div>
           ) : (
-            'Hesap Oluştur'
+            'Create Account'
           )}
         </button>
       </form>
 
       {onNavigateToLogin && (
         <div className="mt-6 text-center text-sm">
-          <span className="text-white/60">Zaten hesabınız var mı? </span>
+          <span className="text-white/60">Already have an account? </span>
           <button
             onClick={onNavigateToLogin}
             className="font-medium text-amber-400 hover:text-amber-300 transition-colors duration-200 focus:outline-none"
           >
-            Giriş Yapın
+            Log In
           </button>
         </div>
       )}

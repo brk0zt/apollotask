@@ -3,19 +3,19 @@ import { z } from 'zod';
 
 // Re-declaring the schemas to run modular tests on Zod schemas
 const loginSchema = z.object({
-  email: z.string().min(1, 'E-posta adresi gereklidir.').email('Geçersiz e-posta adresi formatı.'),
-  password: z.string().min(8, 'Şifre en az 8 karakter olmalıdır.'),
+  email: z.string().min(1, 'Email address is required.').email('Invalid email address format.'),
+  password: z.string().min(8, 'Password must be at least 8 characters.'),
 });
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, 'İsim en az 2 karakter olmalıdır.').max(128, 'İsim en fazla 128 karakter olabilir.'),
-    email: z.string().min(1, 'E-posta adresi gereklidir.').email('Geçersiz e-posta adresi formatı.'),
-    password: z.string().min(8, 'Şifre en az 8 karakter olmalıdır.'),
-    password_confirmation: z.string().min(1, 'Şifre tekrarı gereklidir.'),
+    name: z.string().min(2, 'Name must be at least 2 characters.').max(128, 'Name must be at most 128 characters.'),
+    email: z.string().min(1, 'Email address is required.').email('Invalid email address format.'),
+    password: z.string().min(8, 'Password must be at least 8 characters.'),
+    password_confirmation: z.string().min(1, 'Confirm password is required.'),
   })
   .refine((data) => data.password === data.password_confirmation, {
-    message: 'Şifreler eşleşmiyor.',
+    message: 'Passwords do not match.',
     path: ['password_confirmation'],
   });
 
@@ -38,7 +38,7 @@ describe('Zod Authentication Boundary Schemas', () => {
       const result = loginSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Geçersiz e-posta adresi formatı.');
+        expect(result.error.errors[0].message).toBe('Invalid email address format.');
       }
     });
 
@@ -50,7 +50,7 @@ describe('Zod Authentication Boundary Schemas', () => {
       const result = loginSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Şifre en az 8 karakter olmalıdır.');
+        expect(result.error.errors[0].message).toBe('Password must be at least 8 characters.');
       }
     });
   });
@@ -77,7 +77,7 @@ describe('Zod Authentication Boundary Schemas', () => {
       const result = registerSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Şifreler eşleşmiyor.');
+        expect(result.error.errors[0].message).toBe('Passwords do not match.');
       }
     });
   });

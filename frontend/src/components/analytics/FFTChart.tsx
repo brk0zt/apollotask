@@ -10,7 +10,7 @@ export const FFTChart: React.FC<FFTChartProps> = ({ data }) => {
   if (!data.success) {
     return (
       <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-center">
-        Fourier analizi için veri seti henüz yeterli değil.
+        The dataset is not yet sufficient for Fourier analysis.
       </div>
     );
   }
@@ -18,7 +18,7 @@ export const FFTChart: React.FC<FFTChartProps> = ({ data }) => {
   // Format data for Recharts (exposing frequency/period on X and magnitude on Y)
   const chartData = data.spectrum.map((item) => ({
     frequency: item.frequency_cycles_day,
-    period: item.period_days ? `${item.period_days.toFixed(1)} gün` : 'Süresiz',
+    period: item.period_days ? `${item.period_days.toFixed(1)} days` : 'Infinite',
     periodValue: item.period_days || 0,
     magnitude: item.magnitude,
   }));
@@ -27,15 +27,15 @@ export const FFTChart: React.FC<FFTChartProps> = ({ data }) => {
     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl backdrop-blur-md">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
         <div>
-          <h3 className="text-xl font-semibold text-white">Aktivite Spektrum Analizi (FFT)</h3>
+          <h3 className="text-xl font-semibold text-white">Activity Spectrum Analysis (FFT)</h3>
           <p className="text-white/40 text-sm mt-0.5">
-            Cooley-Tukey FFT O(N log N) algoritmasıyla çıkarılan çalışma periyotları
+            Work periods extracted with Cooley-Tukey FFT O(N log N) algorithm
           </p>
         </div>
         <div className="mt-3 md:mt-0 flex items-center space-x-3 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
           <span className="text-amber-300 text-xs font-semibold uppercase tracking-wider">
-            Dominant Periyot: {data.dominant_period_days.toFixed(2)} Gün
+            Dominant Period: {data.dominant_period_days.toFixed(2)} Days
           </span>
         </div>
       </div>
@@ -45,7 +45,7 @@ export const FFTChart: React.FC<FFTChartProps> = ({ data }) => {
         <div className="flex items-start space-x-3">
           <span className="text-2xl mt-0.5">💡</span>
           <div>
-            <h4 className="font-semibold text-amber-200 text-sm">Fourier Kalıp Analizi İçgörüsü</h4>
+            <h4 className="font-semibold text-amber-200 text-sm">Fourier Pattern Analysis Insight</h4>
             <p className="text-white/70 text-sm mt-1 leading-relaxed">{data.insight}</p>
           </div>
         </div>
@@ -81,10 +81,10 @@ export const FFTChart: React.FC<FFTChartProps> = ({ data }) => {
                   const item = payload[0].payload;
                   return (
                     <div className="p-3 bg-slate-900/90 border border-white/10 rounded-lg shadow-xl text-xs">
-                      <p className="font-bold text-white mb-1">Döngü Periyodu: {item.period}</p>
-                      <p className="text-white/60">Frekans: {item.frequency.toFixed(3)} döngü/gün</p>
+                      <p className="font-bold text-white mb-1">Cycle Period: {item.period}</p>
+                      <p className="text-white/60">Frequency: {item.frequency.toFixed(3)} cycles/day</p>
                       <p className="text-amber-400 font-semibold mt-1">
-                        Genlik (Genlik Değeri): {item.magnitude.toFixed(2)}
+                        Magnitude (Amplitude Value): {item.magnitude.toFixed(2)}
                       </p>
                     </div>
                   );
@@ -105,9 +105,9 @@ export const FFTChart: React.FC<FFTChartProps> = ({ data }) => {
       </div>
 
       <div className="flex justify-between items-center mt-4 text-[10px] text-white/30 uppercase tracking-widest">
-        <span>Yüksek Frekans (Hızlı Döngü)</span>
-        <span>Nyquist Limit: 24 Örnek/Gün (Saatlik Buckets)</span>
-        <span>Düşük Frekans (Yavaş Döngü)</span>
+        <span>High Frequency (Fast Cycle)</span>
+        <span>Nyquist Limit: 24 Samples/Day (Hourly Buckets)</span>
+        <span>Low Frequency (Slow Cycle)</span>
       </div>
     </div>
   );
