@@ -17,9 +17,14 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'https://apollotask-a1gk6t6wh-1brkozt-gmailcoms-projects.vercel.app',
+        'http://localhost:5173' // Lokal testlerin için
+    ],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '#^https://apollotask-.*\.vercel\.app$#'
+    ],
 
     'allowed_headers' => ['*'],
 
@@ -27,6 +32,6 @@ return [
 
     'max_age' => 86400,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true, // Frontend'den header ve token gelişini doğrulamak için true olmalı
 
 ];
