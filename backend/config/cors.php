@@ -17,21 +17,16 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [],
+    'allowed_origins' => ['*'],
 
-    'allowed_origins_patterns' => [
-        '#^https?://.*\.vercel\.app$#',
-        '#^https?://.*\.vercel\.app:\d+$#',
-        '#^https?://localhost(:\d+)?$#',
-        '#^https?://.*\.up\.railway\.app$#',
-    ],
+    'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    'max_age' => 86400,
 
-    'supports_credentials' => true,
+    'supports_credentials' => false,
 
 ];
