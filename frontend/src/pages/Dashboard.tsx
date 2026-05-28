@@ -121,14 +121,14 @@ export const Dashboard: React.FC = () => {
   };
 
   // 2. Fetch Tasks of Selected Project
-  // 2. Fetch Tasks of Selected Project
   const fetchTasks = async (projId: number) => {
     try {
       // Backend'in dönüş tipini doğru yansıtacak şekilde arayüzü (interface) genişletelim
-      const res = await apiClient.get<{ project: Project; tasks: Task[] }>(`/projects/${projId}`);
+      const res = await apiClient.get<{ project: any; tasks: any }>(`/projects/${projId}`);
       
-      // Artık sadece diziyi state'e atıyoruz
-      setTasks(res.data.tasks || []); 
+      // Desteklenen her iki formatı da (direkt dizi veya Laravel'in sarmaladığı { data: [] } yapısını) güvenle karşılıyoruz
+      const tasksList = Array.isArray(res.data.tasks) ? res.data.tasks : (res.data.tasks?.data || []);
+      setTasks(tasksList); 
     } catch (e) {
       console.warn('Failed to fetch tasks of project', projId);
       setTasks([]); // Hata durumunda da güvenli bir boş dizi atıyoruz
@@ -204,11 +204,11 @@ export const Dashboard: React.FC = () => {
     if (!newProjectName.trim()) return;
 
     try {
-      const res = await apiClient.post<{ project: Project }>('/projects', {
+      const res = await apiClient.post<{ project: any }>('/projects', {
         name: newProjectName,
         description: newProjectDesc,
       });
-      const newProj = res.data.project;
+      const newProj = res.data.project?.data || res.data.project;
       setProjects([newProj, ...projects]);
       setSelectedProjectId(newProj.id);
       setNewProjectName('');
@@ -225,13 +225,14 @@ export const Dashboard: React.FC = () => {
     if (!selectedProjectId || !newTaskTitle.trim()) return;
 
     try {
-      const res = await apiClient.post<{ task: Task }>(`/projects/${selectedProjectId}/tasks`, {
+      const res = await apiClient.post<{ task: any }>(`/projects/${selectedProjectId}/tasks`, {
         title: newTaskTitle,
         estimated_hours: newTaskEst ? parseFloat(newTaskEst) : null,
         priority: parseInt(newTaskPriority),
         due_date: newTaskDueDate || null,
       });
-      setTasks([res.data.task, ...tasks]);
+      const newTask = res.data.task?.data || res.data.task;
+      setTasks([newTask, ...tasks]);
       setNewTaskTitle('');
       setNewTaskEst('');
       setNewTaskDueDate('');
@@ -249,12 +250,13 @@ export const Dashboard: React.FC = () => {
     }
 
     try {
-      const res = await apiClient.patch<{ task: Task }>(`/tasks/${taskId}/complete`, {
+      const res = await apiClient.patch<{ task: any }>(`/tasks/${taskId}/complete`, {
         actual_hours: parseFloat(hours),
       });
       
+      const updatedTask = res.data.task?.data || res.data.task;
       // Update task list state
-      setTasks(tasks.map(t => t.id === taskId ? res.data.task : t));
+      setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
       setCompletingTaskId(null);
       
       // Re-trigger projects updates to fetch new forecasts
