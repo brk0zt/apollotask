@@ -152,25 +152,41 @@ export const Dashboard: React.FC = () => {
     }
 
     const fetchLiveAnalytics = async () => {
+      // 1. FFT Verisini Çek
       try {
         const fftRes = await apiClient.get<FFTAnalysisResponse>(`/analytics/patterns?metric=${selectedMetric}`);
-        if (fftRes.data.success) setFftData(fftRes.data);
+        // Eğer backend 'success: true' döndüyse veya 'data' null değilse veriyi al, yoksa boş state setle.
+        if (fftRes.data.success && fftRes.data.spectrum) {
+            setFftData(fftRes.data);
+        } else {
+             setFftData({...mockFftData, success: false, spectrum: [] }); // Boş state
+        }
       } catch (e) {
-        setFftData(mockFftData);
+         setFftData({...mockFftData, success: false, spectrum: [] }); // Hata varsa da boş göster
       }
 
+      // 2. Risk Verisini Çek
       try {
         const riskRes = await apiClient.get<RiskScoringResponse>(`/analytics/risk/${selectedProjectId}`);
-        if (riskRes.data.success) setRiskData(riskRes.data);
+        if (riskRes.data.success) {
+             setRiskData(riskRes.data);
+        } else {
+             setRiskData({...mockRiskData, success: false});
+        }
       } catch (e) {
-        setRiskData(mockRiskData);
+         setRiskData({...mockRiskData, success: false});
       }
 
+      // 3. Forecast Verisini Çek
       try {
         const forecastRes = await apiClient.get<ProjectForecastResponse>(`/analytics/forecast/${selectedProjectId}`);
-        if (forecastRes.data.success) setForecastData(forecastRes.data);
+        if (forecastRes.data.success) {
+             setForecastData(forecastRes.data);
+        } else {
+             setForecastData({...mockForecastData, success: false});
+        }
       } catch (e) {
-        setForecastData(mockForecastData);
+         setForecastData({...mockForecastData, success: false});
       }
     };
 
