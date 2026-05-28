@@ -121,20 +121,24 @@ export const Dashboard: React.FC = () => {
   };
 
   // 2. Fetch Tasks of Selected Project
+  // 2. Fetch Tasks of Selected Project
   const fetchTasks = async (projId: number) => {
     try {
-      // Backend'deki ProjectController'ın yapısına uygun şekilde istek atıyoruz
-      const res = await apiClient.get<{ project: Project; tasks: Task[] }>(`/projects/${projId}`);
+      // Backend'in "data" sarmalını Typescript'e bildiriyoruz
+      const res = await apiClient.get<{ data: Task[] }>(`/projects/${projId}/tasks`);
       
-      // Güvenlik katmanı: Eğer tasks kısmı bir diziyse state'e yaz, değilse boş dizi yap
-      if (Array.isArray(res.data.tasks)) {
-        setTasks(res.data.tasks);
+      // res.data axios'un kendi sarmalı, ikinci .data ise Laravel'in sarmalı
+      const taskList = res.data.data;
+
+      // Her ihtimale karşı array (dizi) kontrolü yapıp setliyoruz
+      if (Array.isArray(taskList)) {
+        setTasks(taskList);
       } else {
         setTasks([]);
       }
     } catch (e) {
       console.warn('Failed to fetch tasks of project', projId);
-      setTasks([]); // Hata anında da boş dizi (array) dönüyoruz ki filter() patlamasın
+      setTasks([]); // Hata anında filter patlamasın diye boş dizi atıyoruz
     }
   };
 
