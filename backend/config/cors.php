@@ -23,7 +23,7 @@ return [
     ],
 
     'allowed_origins_patterns' => [
-        '#^https://apollotask-.*\.vercel\.app$#'
+        '#^https://.*\.vercel\.app$#'
     ],
 
     'allowed_headers' => ['*'],
