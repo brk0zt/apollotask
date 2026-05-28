@@ -123,15 +123,18 @@ export const Dashboard: React.FC = () => {
   // 2. Fetch Tasks of Selected Project
   const fetchTasks = async (projId: number) => {
     try {
-      // Backend'in dönüş tipini doğru yansıtacak şekilde arayüzü (interface) genişletelim
-      const res = await apiClient.get<{ project: any; tasks: any }>(`/projects/${projId}`);
+      // Backend'deki ProjectController'ın yapısına uygun şekilde istek atıyoruz
+      const res = await apiClient.get<{ project: Project; tasks: Task[] }>(`/projects/${projId}`);
       
-      // Desteklenen her iki formatı da (direkt dizi veya Laravel'in sarmaladığı { data: [] } yapısını) güvenle karşılıyoruz
-      const tasksList = Array.isArray(res.data.tasks) ? res.data.tasks : (res.data.tasks?.data || []);
-      setTasks(tasksList); 
+      // Güvenlik katmanı: Eğer tasks kısmı bir diziyse state'e yaz, değilse boş dizi yap
+      if (Array.isArray(res.data.tasks)) {
+        setTasks(res.data.tasks);
+      } else {
+        setTasks([]);
+      }
     } catch (e) {
       console.warn('Failed to fetch tasks of project', projId);
-      setTasks([]); // Hata durumunda da güvenli bir boş dizi atıyoruz
+      setTasks([]); // Hata anında da boş dizi (array) dönüyoruz ki filter() patlamasın
     }
   };
 
@@ -220,19 +223,23 @@ export const Dashboard: React.FC = () => {
   };
 
   // 5. Handle Create Task
+  // 5. Handle Create Task
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProjectId || !newTaskTitle.trim()) return;
 
     try {
-      const res = await apiClient.post<{ task: any }>(`/projects/${selectedProjectId}/tasks`, {
+      const res = await apiClient.post<{ task: Task }>(`/projects/${selectedProjectId}/tasks`, {
         title: newTaskTitle,
         estimated_hours: newTaskEst ? parseFloat(newTaskEst) : null,
         priority: parseInt(newTaskPriority),
         due_date: newTaskDueDate || null,
       });
-      const newTask = res.data.task?.data || res.data.task;
-      setTasks([newTask, ...tasks]);
+
+      // Kritik Düzeltme: Mevcut tasks state'inin dizi olduğundan emin ol!
+      const currentTasks = Array.isArray(tasks) ? tasks : [];
+      setTasks([res.data.task, ...currentTasks]);
+      
       setNewTaskTitle('');
       setNewTaskEst('');
       setNewTaskDueDate('');
