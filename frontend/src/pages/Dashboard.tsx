@@ -121,12 +121,17 @@ export const Dashboard: React.FC = () => {
   };
 
   // 2. Fetch Tasks of Selected Project
+  // 2. Fetch Tasks of Selected Project
   const fetchTasks = async (projId: number) => {
     try {
-      const res = await apiClient.get<Task[]>(`/projects/${projId}/tasks`);
-      setTasks(res.data);
+      // Backend'in dönüş tipini doğru yansıtacak şekilde arayüzü (interface) genişletelim
+      const res = await apiClient.get<{ project: Project; tasks: Task[] }>(`/projects/${projId}`);
+      
+      // Artık sadece diziyi state'e atıyoruz
+      setTasks(res.data.tasks || []); 
     } catch (e) {
       console.warn('Failed to fetch tasks of project', projId);
+      setTasks([]); // Hata durumunda da güvenli bir boş dizi atıyoruz
     }
   };
 
