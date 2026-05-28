@@ -109,36 +109,51 @@ export const Dashboard: React.FC = () => {
   // 1. Fetch Projects from backend API
   const fetchProjects = async () => {
     try {
-      const res = await apiClient.get<{ data: Project[] }>('/projects');
-      setProjects(res.data.data);
-      if (res.data.data.length > 0 && !selectedProjectId) {
-        setSelectedProjectId(res.data.data[0].id);
+      const res = await apiClient.get<any>('/projects');
+      const projectsList = res.data?.data || res.data;
+      
+      // Strict array validation
+      if (Array.isArray(projectsList)) {
+        setProjects(projectsList);
+        if (projectsList.length > 0 && !selectedProjectId) {
+          setSelectedProjectId(projectsList[0].id);
+        }
+      } else {
+        setProjects([]);
       }
     } catch (e) {
       console.warn('Backend API offline or database empty. Using simulations...');
+      setProjects([]); // Fallback to safe empty array
       setUseLiveApi(false);
     }
   };
 
   // 2. Fetch Tasks of Selected Project
-  // 2. Fetch Tasks of Selected Project
   const fetchTasks = async (projId: number) => {
     try {
-      // Backend'in "data" sarmalını Typescript'e bildiriyoruz
-      const res = await apiClient.get<{ data: Task[] }>(`/projects/${projId}/tasks`);
+      const res = await apiClient.get<any>(`/projects/${projId}`);
       
-      // res.data axios'un kendi sarmalı, ikinci .data ise Laravel'in sarmalı
-      const taskList = res.data.data;
-
-      // Her ihtimale karşı array (dizi) kontrolü yapıp setliyoruz
-      if (Array.isArray(taskList)) {
-        setTasks(taskList);
+      // Extract the array using res.data.data first, with robust fallback options
+      let fetchedTasks = null;
+      if (res.data) {
+        if (Array.isArray(res.data.data)) {
+          fetchedTasks = res.data.data;
+        } else if (res.data.tasks) {
+          fetchedTasks = Array.isArray(res.data.tasks) ? res.data.tasks : res.data.tasks.data;
+        } else if (Array.isArray(res.data)) {
+          fetchedTasks = res.data;
+        }
+      }
+      
+      // Strict array validation
+      if (Array.isArray(fetchedTasks)) {
+        setTasks(fetchedTasks);
       } else {
         setTasks([]);
       }
     } catch (e) {
       console.warn('Failed to fetch tasks of project', projId);
-      setTasks([]); // Hata anında filter patlamasın diye boş dizi atıyoruz
+      setTasks([]); // Fallback to safe empty array on error
     }
   };
 
@@ -216,7 +231,13 @@ export const Dashboard: React.FC = () => {
         description: newProjectDesc,
       });
       const newProj = res.data.project?.data || res.data.project;
-      setProjects([newProj, ...projects]);
+      
+      // Functional state update pattern with strict array validation
+      setProjects(prevProjects => {
+        const projectsArray = Array.isArray(prevProjects) ? prevProjects : [];
+        return [newProj, ...projectsArray];
+      });
+      
       setSelectedProjectId(newProj.id);
       setNewProjectName('');
       setNewProjectDesc('');
@@ -227,23 +248,25 @@ export const Dashboard: React.FC = () => {
   };
 
   // 5. Handle Create Task
-  // 5. Handle Create Task
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProjectId || !newTaskTitle.trim()) return;
 
     try {
-      const res = await apiClient.post<{ task: Task }>(`/projects/${selectedProjectId}/tasks`, {
+      const res = await apiClient.post<{ task: any }>(`/projects/${selectedProjectId}/tasks`, {
         title: newTaskTitle,
         estimated_hours: newTaskEst ? parseFloat(newTaskEst) : null,
         priority: parseInt(newTaskPriority),
         due_date: newTaskDueDate || null,
       });
-
-      // Kritik Düzeltme: Mevcut tasks state'inin dizi olduğundan emin ol!
-      const currentTasks = Array.isArray(tasks) ? tasks : [];
-      setTasks([res.data.task, ...currentTasks]);
+      const newTask = res.data.task?.data || res.data.task;
       
+      // Functional state update pattern with strict array validation
+      setTasks(prevTasks => {
+        const tasksArray = Array.isArray(prevTasks) ? prevTasks : [];
+        return [newTask, ...tasksArray];
+      });
+
       setNewTaskTitle('');
       setNewTaskEst('');
       setNewTaskDueDate('');
@@ -266,8 +289,12 @@ export const Dashboard: React.FC = () => {
       });
       
       const updatedTask = res.data.task?.data || res.data.task;
-      // Update task list state
-      setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
+      
+      // Functional state update pattern with strict array validation
+      setTasks(prevTasks => {
+        const tasksArray = Array.isArray(prevTasks) ? prevTasks : [];
+        return tasksArray.map(t => t.id === taskId ? updatedTask : t);
+      });
       setCompletingTaskId(null);
       
       // Re-trigger projects updates to fetch new forecasts
